@@ -1,10 +1,8 @@
-import './App.css';
+import MainContainer from "./components/MainContainer";
 
 function App() {
   return (
-    <div >
-      <h1 className='font-bold'>FlixGPT</h1>
-    </div>
+    <MainContainer />
   );
 }
 
