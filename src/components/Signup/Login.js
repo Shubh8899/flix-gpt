@@ -4,8 +4,10 @@ import { validateCredentials, validateSignUpCred } from "../utils/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -13,6 +15,7 @@ const Login = () => {
   const password = useRef(null);
   const name = useRef(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate();
 
   const toggleSignIn = () => {
     setIsSignIn(!isSignIn);
@@ -26,8 +29,8 @@ const Login = () => {
       );
       setErrorMessage(message);
     } else {
-        const errorMessage = validateSignUpCred(name.current.value);
-        setErrorMessage(errorMessage);
+      const errorMessage = validateSignUpCred(name.current.value);
+      setErrorMessage(errorMessage);
     }
 
     if (!isSignIn) {
@@ -38,7 +41,18 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log(user);
+
+          updateProfile(user, {
+            displayName: name.current.value,
+            photoURL:
+              "https://e7.pngegg.com/pngimages/799/987/png-clipart-computer-icons-avatar-icon-design-avatar-heroes-computer-wallpaper-thumbnail.png",
+          })
+            .then(() => {
+              navigate("/browse");
+            })
+            .catch((error) => {
+              setErrorMessage(error);
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -53,7 +67,7 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          console.log(user);
+          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
