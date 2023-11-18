@@ -1,6 +1,11 @@
 import React, { useRef, useState } from "react";
 import Header from "./Header";
 import { validateCredentials, validateSignUpCred } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
@@ -14,14 +19,48 @@ const Login = () => {
   };
 
   const handleButtonClick = () => {
-    const message = validateCredentials(
-      email.current.value,
-      password.current.value
-    );
-    const errorMessage = validateSignUpCred(name.current.value);
-    
-    setErrorMessage(message);
-    setErrorMessage(errorMessage);
+    if (isSignIn) {
+      const message = validateCredentials(
+        email.current.value,
+        password.current.value
+      );
+      setErrorMessage(message);
+    } else {
+        const errorMessage = validateSignUpCred(name.current.value);
+        setErrorMessage(errorMessage);
+    }
+
+    if (!isSignIn) {
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " - " + errorMessage);
+        });
+    } else {
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " - " + errorMessage);
+        });
+    }
   };
 
   return (
@@ -69,7 +108,7 @@ const Login = () => {
           >
             {isSignIn ? "Sign-In" : "Sign-Up"}
           </button>
-          <p className="text-red-600">{errorMessage}</p>
+          <p className="text-red-600 w-80">{errorMessage}</p>
 
           <div>
             <h2
